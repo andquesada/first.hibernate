@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="tables">
+
+	<class name="Employee" table="Employee">
+		<id name="id" column="id">
+			<generator class="increment" />
+		</id>
+		
+		<property name="name" type="string" column="name" />
+		<property name="age" type="byte" column="age" />
+		<property name="role" type="string" column="role" />
+		<property name="date" type="timestamp" column="insert_time" />
+	</class>
+	
+</hibernate-mapping>
