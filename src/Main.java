@@ -31,6 +31,7 @@ public final class Main {
 				System.out.println("Id: " + em.getId() + ". Nombre: " + em.getName() + ". Edad: " + em.getAge()
 						+ ". Rol: " + em.getRole() + ". Fecha: " + em.getDate() + ".");
 			}
+			t.commit();
 		} catch (org.hibernate.HibernateException e) {
 			System.out.println("HibernateException: " + e.toString());
 			e.printStackTrace();
