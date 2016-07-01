@@ -12,7 +12,9 @@ import org.hibernate.HibernateException;
 
 import javax.transaction.RollbackException;
 
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Calendar;
 
 import tables.Employee;
 import exceptions.ConfigurationAvailable;
@@ -42,7 +44,7 @@ public class QueryUtil {
 		em = null;
 	}
 
-	public void startConfiguration() throws ConfigurationAvailable, HibernateException {
+	public void openConnection() throws ConfigurationAvailable, HibernateException {
 		if (null != sf) {
 			throw new ConfigurationAvailable();
 		}
@@ -56,22 +58,21 @@ public class QueryUtil {
 		}
 	}
 
-	public void closeConfiguration() throws HibernateException {
+	public void closeConnection() throws HibernateException {
 		sf.close();
 	}
 
-	public boolean isConfigured() {
+	public boolean isOpen() {
 		return sf != null;
 	}
 
 	public String employeeListToString()
 			throws NoConfigurationAvailable, HibernateException, Throwable, RollbackException {
 		testAndThrowNoConfigurationAvailable();
+		openTransactionScope();
 
 		StringBuilder sb;
 		sb = new StringBuilder();
-
-		openTransactionScope();
 
 		q = s.createQuery("from Employee");
 		it = q.getResultList().iterator();
@@ -86,13 +87,42 @@ public class QueryUtil {
 		return sb.toString();
 	}
 
+	public void insertNewEmployee(String name, byte age, String role)
+			throws NoConfigurationAvailable, HibernateException, Throwable, RollbackException {
+		testAndThrowNoConfigurationAvailable();
+		openTransactionScope();
+
+		em = new Employee();
+		em.setName(name);
+		em.setAge(age);
+		em.setRole(role);
+		em.setDate(Calendar.getInstance().getTime());
+		s.save(em);
+
+		closeTransactionScope();
+	}
+
+	public void deleteEmployee(String name, byte age, String role)
+			throws NoConfigurationAvailable, HibernateException, Throwable, RollbackException {
+		testAndThrowNoConfigurationAvailable();
+		openTransactionScope();
+
+		em = new Employee();
+		em.setId(4);
+		em.setName(name);
+		em.setAge(age);
+		em.setRole(role);
+		s.delete(em);
+
+		closeTransactionScope();
+	}
+
 	private void openTransactionScope() throws HibernateException, Throwable {
 		s = sf.getCurrentSession();
 		t = s.beginTransaction();
 	}
 
 	private void closeTransactionScope() throws RollbackException {
-		testAndThrowNoConfigurationAvailable();
 		t.commit();
 	}
 
