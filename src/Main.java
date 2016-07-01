@@ -1,50 +1,27 @@
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.Query;
-
-import java.util.Iterator;
-
-import tables.Employee;
+import util.QueryUtil;
 
 public final class Main {
 
 	public static void main(String[] args) {
-		SessionFactory sf = null;
-		Session s = null;
-		Transaction t = null;
-		Query q = null;
-		Iterator<Employee> it = null;
-		Employee em = null;
+		QueryUtil qu;
+		qu = new QueryUtil();
 
-		// Opening connection to database
 		try {
-			sf = new Configuration().configure().buildSessionFactory();
-			s = sf.getCurrentSession();
-			t = s.beginTransaction();
-
-			q = s.createQuery("from Employee");
-			it = q.iterate();
-			while (it.hasNext()) {
-				em = it.next();
-				System.out.println("Id: " + em.getId() + ". Nombre: " + em.getName() + ". Edad: " + em.getAge()
-						+ ". Rol: " + em.getRole() + ". Fecha: " + em.getDate() + ".");
-			}
-			t.commit();
-		} catch (org.hibernate.HibernateException e) {
-			System.out.println("HibernateException: " + e.toString());
-			e.printStackTrace();
+			qu.startConfiguration();			
+			System.out.println(qu.employeeListToString());
+			qu.closeConfiguration();
 		} catch (Throwable e) {
-			if (null != t) {
-				t.rollback();
-			}
+			if (qu.isConfigured()) {
 
-			System.out.println("Non HibernateException: " + e.toString() + e.fillInStackTrace().toString());
-		} finally {
-			if (null != sf) {
-				sf.close();
+				try {
+					qu.closeConfiguration();
+				} catch (Throwable e2) {
+					System.out.println("Problem when closing configuration.");
+					e2.printStackTrace();
+				}
 			}
+			System.out.println(e.toString());
+			e.printStackTrace();
 		}
 	}
 }
