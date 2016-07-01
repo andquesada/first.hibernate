@@ -8,11 +8,15 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.HibernateException;
 
 import javax.transaction.RollbackException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Root;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Calendar;
 
@@ -103,25 +107,30 @@ public class QueryUtil {
 	}
 
 	public void deleteEmployee(String name, byte age, String role)
-			throws NoConfigurationAvailable, HibernateException, Throwable, RollbackException {
+			throws NoConfigurationAvailable, IllegalStateException, HibernateException, Throwable, RollbackException {
 		testAndThrowNoConfigurationAvailable();
 		openTransactionScope();
 
-		em = new Employee();
-		em.setId(4);
-		em.setName(name);
-		em.setAge(age);
-		em.setRole(role);
+		em = retrieveEmployee(name, age, role);
 		s.delete(em);
 
 		closeTransactionScope();
 	}
 
+	// Assumes a SessionFactory and a Transaction not already opened
+	private Employee retrieveEmployee(String name, byte age, String role) throws IllegalStateException {
+		String hql = "from Employee E where E.name='" + name + "' and E.age=" + age + " and E.role='" + role + "'";
+		q = s.createQuery(hql);
+		return q.getSingleResult();
+	}
+
+	// Assumes a SessionFactory is not already opened
 	private void openTransactionScope() throws HibernateException, Throwable {
 		s = sf.getCurrentSession();
 		t = s.beginTransaction();
 	}
 
+	// Assumes a SessionFactory is already opened
 	private void closeTransactionScope() throws RollbackException {
 		t.commit();
 	}
